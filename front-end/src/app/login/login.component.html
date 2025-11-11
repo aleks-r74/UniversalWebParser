@@ -1,0 +1,62 @@
+<div class="card shadow-lg rounded-2xl max-w-sm mx-auto">
+  <div class="card-body p-6">
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      
+      <!-- Username -->
+      <div class="form-control mb-2">
+        <label class="label">
+          <span class="label-text text-sm">Username</span>
+        </label>
+        <input
+          type="username"
+          formControlName="username"
+          class="input input-bordered input-sm w-full"
+          aria-describedby="usernameHelp"
+          autofocus
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="form-control mb-2">
+        <label class="label">
+          <span class="label-text text-sm">Password</span>
+        </label>
+        <input
+          type="password"
+          formControlName="password"
+          class="input input-bordered input-sm w-full"
+          [attr.aria-invalid]="password?.invalid && password?.touched"
+        />
+        <label class="label">
+          <span class="label-text-alt text-xs text-error">
+            @if(password?.touched && password?.invalid){
+              {{ password?.errors?.['required'] ? 'Password is required.' : '' }}
+            }
+            @else if(username?.touched && username?.invalid){
+              {{ username?.errors?.['required'] ? 'Username is required.' : '' }}
+            }
+            @else {
+                &nbsp;
+            }
+          </span>
+
+        </label>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-sm w-full"
+        [class.loading]="loading"
+        [disabled]="loading"
+      >
+        Sign in
+      </button>
+    </form>
+
+    <div class="text-center mt-3 text-xs text-gray-500">
+      This is a closed system - registration is not available.
+    </div>
+  </div>
+</div>

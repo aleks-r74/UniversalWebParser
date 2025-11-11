@@ -1,0 +1,103 @@
+<dialog id="my_modal_1" class="modal" #modal>
+    @if(contentLoading){
+    <div class="flex items-center justify-center w-full h-full">
+        <span class="loading loading-bars loading-xl"></span>
+    </div>
+    } @else {
+
+    @switch (store.dialog().type) {
+    @case ('INFO') {
+    <div
+        class="modal-box relative text-xs w-11/12 sm:w-10/12 md:w-8/12 lg:max-w-5xl h-[80vh] overflow-hidden flex flex-col p-0">
+        <button class="btn btn-xs btn-circle absolute right-2 top-2 z-40" (click)="modal.close()" aria-label="Close">✕
+        </button>
+        <div class="absolute left-1/2 -translate-x-1/2 text-white text-md sm:text-sm md:text-md lg:text-lg font-bold opacity-90 text-center pointer-events-none select-none z-40 truncate
+                            top-4 sm:top-4 md:top-3 lg:top-2">
+            {{ store.dialog().title }}
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="mockup-code flex-1 overflow-y-auto overflow-x-auto px-4 py-4" #logContainer (scroll)="onScroll()">
+            @for (line of textContent; track i; let i = $index) {
+            <pre [attr.data-prefix]="'$'"><code>{{ line }}</code></pre>
+            }
+            @for (line of logContent; track line.time; let i = $index) {
+            <pre [attr.data-prefix]="line.time.substring(11, 19)"><code class="ml-4">{{ line.payload }}</code></pre>
+            }
+        </div>
+    </div>
+
+    }
+    @case ("SCRIPT") {
+    <div class="modal-box w-8/12 max-w-5xl relative pb-0">
+        <div class="text-lg font-bold opacity-80 absolute top-2 left-1/2 -translate-x-1/2">{{store.dialog().title}}
+        </div>
+        <form [formGroup]="form" (ngSubmit)="onSave()">
+            <div class="flex flex-wrap gap-3 items-center mb-3 mt-5">
+                <div class="flex-1 min-w-[160px] relative">
+                    <input formControlName="name" type="text" placeholder="Script name"
+                        class="input input-info input-xs w-full" />
+                </div>
+
+                <div class="flex-1 min-w-[160px] relative">
+                    <input formControlName="group" type="text" placeholder="Script group"
+                        class="input input-info input-xs w-full" />
+                </div>
+            </div>
+
+
+            <!-- Textarea (full width) -->
+            <textarea formControlName="source" class="textarea textarea-info w-full h-40 mb-3 leading-4"
+                autocorrect="off" autocapitalize="off" spellcheck="false" autocomplete="off">
+            </textarea>
+
+            <!-- Buttons + error row -->
+            <div class="flex justify-between items-center gap-2">
+
+                <div class="text-red-600 text-sm w-full text-center">
+                    @if(form.dirty && form.invalid){
+                    @if(form.get('name')?.errors?.['maxlength']){ Name is too long }
+                    @if(form.get('group')?.errors?.['maxlength']){ Group is too long }
+                    }
+                    @if(backendErrors){{{backendErrors}}}
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-success min-w-[4rem]" [disabled]="form.invalid">
+                        @if(!btnLoading){ Save }
+                        @else{ <span class="loading loading-dots loading-xs"></span> }
+                    </button>
+                    <button type="button" class="btn btn-sm btn-ghost" (click)="closeModal()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- close button -->
+            <div class="modal-action">
+                <button type="button" class="btn btn-xs btn-circle btn-ghost absolute right-2 top-2"
+                    (click)="closeModal()">✕</button>
+            </div>
+        </form>
+    </div>
+    }
+    @case ("CONFIRM") {
+    <div class="modal-box max-w-lg p-6 space-y-4">
+        <h3 class="text-xl font-bold">{{ store.dialog().title }}</h3>
+        @for (line of textContent; track i; let i = $index) {
+        <p class="text-md text-gray-700 leading-relaxed">{{ line }}</p>
+        }
+        <div class="mt-4 flex justify-end gap-3">
+            <button type="button" class="btn btn-sm btn-success min-w-[4rem]" (click)="onConfirm()">
+                Confirm
+            </button>
+            <button type="button" class="btn btn-sm btn-ghost min-w-[4rem]" (click)="closeModal()">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    }
+    }
+    }
+</dialog>

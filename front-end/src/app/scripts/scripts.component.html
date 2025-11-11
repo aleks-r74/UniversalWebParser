@@ -1,0 +1,18 @@
+<div class="flex flex-col items-center justify-center flex-1 gap-4 p-1 min-h-0">
+  <!-- Tables container -->
+  <div class="flex flex-col sm:flex-row gap-4 w-full max-w-[900px]">
+
+    <!-- Script Table -->
+    <div class="w-full sm:flex-[3] h-[80vh] bg-base-100 rounded-box shadow flex flex-col">
+      <app-script-table class="flex-1" />
+    </div>
+
+    <!-- Result Table -->
+    <div class="w-full sm:flex-[2] h-[80vh] bg-base-100 rounded-box shadow flex flex-col">
+      <app-result-table class="flex-1" />
+    </div>
+
+  </div>
+</div>
+<app-floating-button/>
+<app-dialog modalType="Info" />

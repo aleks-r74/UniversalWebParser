@@ -1,0 +1,49 @@
+services:
+  uniparser:
+    build: .
+    image: uniparser:latest
+    container_name: uniparser
+    networks:
+      - parser_lan
+    restart: unless-stopped
+    volumes:
+      - ./scripts:/app/scripts
+      - /home/user/certs/keystore.p12:/app/keystore.p12 # adjust path for the cert file on the host
+      - ./cache:/root/.cache/ms-playwright
+    ports:
+      - "80:80"                             #change to 443 if needed
+    environment:
+      PORT: 80                              # change to 443 if needed
+      JWT_SECRET: ""                        # set base64 string or will be auto-generated on startup
+      PLAYWRIGHT_WS: "ws://playwright-server:3000"
+      ADMIN_PASS: admin                     # admin password
+      GUEST_PASS: ""                        # set or will be auto-generated on startup
+      FAIL_THRESHOLD: 3                     # how many times script can fail at runtime before being deactivated
+      WORKERS: 1                            # parallel execution of scripts
+      SPRING_PROFILES_ACTIVE: dev           # remove this line when using SSL or change dev to prod      
+      #         Uncomment lines below when using SSL
+      #KEY_STORE: "./keystore.p12"
+      #KEY_STORE_PSW: "pass for cert"
+      #KEY_STORE_ALIAS: "keystore alias"
+      
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.55.0-noble
+    container_name: playwright-server
+    networks:
+      - parser_lan
+    restart: unless-stopped
+    user: pwuser
+    shm_size: 2g
+    security_opt:
+      - seccomp:./seccomp_profile.json
+    entrypoint: >
+      bash -c "
+        id -u pwuser &>/dev/null || adduser --disabled-password --gecos '' pwuser;
+        npx -y playwright@1.55.0 run-server --port 3000
+      "
+    volumes:
+      - ./seccomp_profile.json:/seccomp_profile.json:ro
+      - ./cache:/root/.cache/ms-playwright
+networks:
+  parser_lan:
+    driver: bridge

@@ -1,0 +1,148 @@
+<div class="w-full sm:flex-[2] h-[80vh] bg-base-100 rounded-box shadow flex flex-col overflow-hidden">
+  <div class="overflow-y-auto flex-1" (click)="onScriptUnselected()">
+    <table class="table table-xs text-center table-fixed w-full">
+      <!-- Define column widths -->
+      <colgroup>
+        <col class="w-1/12"> <!-- ID -->
+        <col class="w-2/12"> <!-- Name -->
+        <col class="w-2/12"> <!-- Tags -->
+        <col class="w-1/12"> <!-- Info C-Err -->
+        <col class="w-1/12"> <!-- Info R/F -->
+        <col class="w-1/12 min-w-[60px]"> <!-- Info L-S -->
+        <col class="w-1/12 min-w-[50px]"> <!-- Action 0 -->
+        <col class="w-1/12"> <!-- Action 1 -->
+        <col class="w-1/12"> <!-- Action 2 -->
+        <col class="w-1/12"> <!-- Action 3 -->
+      </colgroup>
+
+      <thead class="bg-blue-200 text-black shadow-md sticky top-0 z-10">
+        <tr>
+          <th rowspan="2">ID</th>
+          <th rowspan="2">Name</th>
+          <th rowspan="2" (click)="resetFiltering()">
+            <a class="" [class.link]="filtering">Group</a>
+          </th>
+          <th colspan="3">Info</th>
+          <th colspan="4">
+            <button class="btn btn-xs bg-blue-200 text-white" (click)="onAddNew()">Add new</button>
+          </th>
+        </tr>
+        <tr>
+          <th title="Compilation Errors">C-Err</th>
+          <th title="Runs and Fails">R/F</th>
+          <th title="Scheduled to Run">Next</th>
+          <th colspan="4" class="p-0">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(row of scriptRows; track row.id){
+        <tr class="align-middle"  (click)="onScriptClick(row.id,$event)" [ngClass]="{'bg-green-100':row.isEnqueued && (this.selectedScript!=row.id),'bg-blue-100':this.selectedScript==row.id}">
+          <td>{{row.id}}</td>
+          <td>{{row.name}}</td>
+          <td>
+            <a class="link link-info link-hover" (click)="showOnlyGroup(row.group)">{{row.group}}</a>
+          </td>
+          <!-- Compilation errors button -->
+          <td title="Compilation errors">
+            @if(row.compiles){
+            <div class="mx-auto my-auto w-2 h-2 rounded-full bg-green-500"></div>
+            }@else{
+            <button type="button" (click)="onCompErrClick(row.id)"
+              class="btn btn-ghost btn-xs p-0 text-red-600 hover:bg-red-100 rounded-full">
+              Err
+            </button>
+            }
+          </td>
+          <td>{{row.runs}}/{{row.fails}}</td>
+          <td>
+            <div class="indicator">
+              <span title="{{row.nextRun | date : 'short'}}">{{row.nextRun | smartDate }}</span>
+            </div>
+          </td>
+          <!-- Toggle ON/OFF --> 
+          <td>
+            <div class="btn btn-xs w-[30px]" (click)="toggleOnOff(row.id,$event)" [ngClass]="{
+                      'bg-green-200 text-green-800': row.isEnabled,
+                      'bg-gray-200 text-gray-600': !row.isEnabled
+                    }">
+              @switch(row.isEnabled){
+              @case(null){<span class="loading loading-dots loading-xs"></span> }
+              @case(true){ ON }
+              @case(false){ OFF }
+              }
+            </div>
+          </td>
+          <!-- Force stop button -->
+          <td class="p-0">
+            <button type="button" (click)="onForceStop(row.id, $event)"
+              class="btn btn-ghost btn-xs p-0 text-red-600 hover:bg-red-100 rounded-full"
+              title="Force Stop + Deactivate" [disabled]="!row.isEnqueued">
+              <svg width="20px" height="20px" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_901_2584)">
+                  <path
+                    d="M22.4348 4.2617C21.4548 4.5917 20.6078 5.2127 20.0008 6.0287M11.9992 6.0283C11.3932 5.2133 10.5462 4.5913 9.55719 4.2723M9.55719 4.2723C11.0132 2.2913 13.353 1 16 1C18.648 1 20.987 2.291 22.444 4.272C22.937 4.109 23.453 4 24 4C26.76 4 29 6.24 29 9C29 9.501 28.912 9.977 28.773 10.432C30.088 11.086 31 12.431 31 14C31 15.861 29.729 17.426 28.008 17.873M9.55719 4.2723C9.06419 4.1093 8.54698 4 7.99998 4C5.23998 4 2.99998 6.24 2.99998 9C2.99998 9.501 3.08798 9.977 3.22798 10.432C1.91198 11.086 0.999985 12.431 0.999985 14C0.999985 15.868 2.28098 17.437 4.01198 17.877M11.0002 23C11.0002 23 12.0002 24 12.0002 26C12.0002 30 10.0002 31 10.0002 31M21.0002 23C21.0002 23 20.0002 24 20.0002 26C20.0002 30 22.0002 31 22.0002 31M16.0002 30.9902V24.9902M7.07828 17.4033C8.16028 18.9663 9.95529 20.0003 12.0003 20.0003C13.5383 20.0003 14.9373 19.4153 16.0003 18.4623C17.0613 19.4153 18.4613 20.0003 20.0003 20.0003C22.0453 20.0003 23.8403 18.9673 24.9223 17.4033"
+                    stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_901_2584">
+                    <rect width="32" height="32" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </button>
+          </td>
+          <!-- Edit button -->
+          <td class="p-0">
+            <button type="button" (click)="onEditClick(row.id)"
+              class="btn btn-ghost btn-xs p-0 text-green-600 hover:bg-red-100 rounded-full" title="Edit">
+              <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path d="M4 5L15 5" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path d="M4 8H15" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path d="M4 11H11" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path
+                    d="M18.4563 13.5423L13.9268 18.0719C13.6476 18.3511 13.292 18.5414 12.9048 18.6188L10.8153 19.0367L11.2332 16.9472C11.3106 16.5601 11.5009 16.2045 11.7801 15.9253L16.3096 11.3957M18.4563 13.5423L19.585 12.4135C19.9755 12.023 19.9755 11.3898 19.585 10.9993L18.8526 10.2669C18.4621 9.8764 17.8289 9.8764 17.4384 10.2669L16.3096 11.3957M18.4563 13.5423L16.3096 11.3957"
+                    stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+              </svg>
+            </button>
+          </td>
+          <!-- Delete button -->
+          <td class="p-0">
+            <button type="button" (click)="onDelete(row.id, $event)" 
+              class="btn btn-ghost btn-xs p-0 text-red-600 hover:bg-red-100 rounded-full" title="Delete script">
+              <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path d="M10 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path d="M14 12V17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path d="M4 7H20" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  </path>
+                  <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#000000"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#000000"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+              </svg>
+            </button>
+          </td>
+        </tr>
+        } @empty {
+          <tr class="align-middle">
+            <td colspan="12">
+              <span class="loading loading-infinity loading-xl"></span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

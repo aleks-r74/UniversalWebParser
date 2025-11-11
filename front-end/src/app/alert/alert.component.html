@@ -1,0 +1,34 @@
+@if(state.alert().visible){
+    @switch (state.alert().type) {
+        @case("error"){
+        <div
+        role="button"
+        class="alert alert-warning fixed bottom-[50px] left-1/2 -translate-x-1/2 z-50
+                inline-flex items-center gap-3 px-4 py-3
+                w-auto min-w-[200px] max-w-[90%] shadow-lg cursor-pointer select-none text-center"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{state.alert().message ? state.alert().message : "Network Error"}}</span>
+        </div>
+        }
+        @case("success"){
+        <div
+        role="button"
+        class="alert alert-success fixed bottom-[50px] left-1/2 -translate-x-1/2 z-50
+                inline-flex items-center gap-3 px-4 py-3
+                w-auto min-w-[200px] max-w-[90%] shadow-lg cursor-pointer select-none text-center"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Success</span>
+        </div>
+        }
+    }
+}
+
+
+
+

@@ -1,0 +1,52 @@
+<div class="w-full sm:flex-[3] h-[80vh] rounded-box shadow flex flex-col overflow-hidden">
+      <div class="overflow-y-auto flex-1">
+        <table class="table table-xs text-center table-auto w-full">
+          <thead class="bg-blue-200 text-black shadow-md sticky top-0 z-10">
+            <tr>
+              <th>RID</th>
+              <th>
+                <a class="" [class.link]="filteredFlag" (click)="resetFilters()">Status</a>
+              </th>
+              <th>
+                <a class="link link-hover" (click)="sortBy('timestamp')">Date or Time</a>
+              </th>
+              <th>
+                <a class="link link-hover" (click)="sortBy('delivered')">
+                  Delivered
+                </a>
+                </th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if(store.resultRowsLoading){
+              <tr class="align-middle">
+                <td colspan="5">
+                  <span class="loading loading-infinity loading-xl"></span>
+                </td>
+              </tr>
+            }
+            @for(row of filteredResults; track row.resultId){ 
+              <tr>
+                <td>{{row.resultId}}</td>
+                <td>
+                  <a class="link link-info link-hover" (click)="filterBy(row.status)">
+                    {{row.status}}
+                  </a>
+                </td> 
+                <td title="{{row.timestamp | date : 'short'}}">{{row.timestamp | smartDate}}</td>
+                <td>{{row.delivered}}</td>
+                <td>
+                  <button type="button" (click)="onShowResultClick(row)" class="btn btn-ghost btn-xs p-0 text-blue-600 hover:bg-blue-100 rounded-full" title="Peek">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
