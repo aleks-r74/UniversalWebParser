@@ -29,7 +29,7 @@ class ScriptRunner(private val scriptCompiler: ScriptCompiler,
                    private val scriptService: ScriptService,
                    private val dbDispatcher: CoroutineDispatcher,
                    private val fs: FileService,
-                   private val browserCtxPool: BrowserContextService
+                   private val browserCtxService: BrowserContextService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val scripts = ConcurrentHashMap<Int, CompiledScriptWrapper>()
@@ -44,9 +44,9 @@ class ScriptRunner(private val scriptCompiler: ScriptCompiler,
                     return ExecutionResult.Cancelled("Unable to run due to compilation failure")
             }
 
-            return browserCtxPool.usePage(scriptId) { page->
+            return browserCtxService.usePage(scriptId) { page->
                     scriptExecutor.run(scripts[scriptId]!!,
-                        fs.getScriptStore(scriptId),
+                        scriptService.getStore(scriptId),
                         page,
                         {input: Any->logger.info("S$scriptId> $input")}
                     )

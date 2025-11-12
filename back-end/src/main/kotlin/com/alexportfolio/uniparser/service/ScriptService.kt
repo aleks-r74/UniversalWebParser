@@ -1,8 +1,8 @@
 package com.alexportfolio.uniparser.service
 
+import com.alexportfolio.script.definition.ScriptStore
 import com.alexportfolio.uniparser.dto.CreateScriptRequest
 import com.alexportfolio.uniparser.dto.ScriptContentDto
-import com.alexportfolio.uniparser.dto.ScriptRowDto
 import com.alexportfolio.uniparser.events.DBUpdateEvent
 import com.alexportfolio.uniparser.events.ForceStopEvent
 import com.alexportfolio.uniparser.events.ScriptRemovedEvent
@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.ConcurrentHashMap
 
 
 @Service
@@ -29,6 +30,7 @@ class ScriptService(private val scriptRepository: ScriptRepository,
                     private val scriptRegistry: RunningScriptsRegistry
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val storeCache = ConcurrentHashMap<Int,ScriptStore>()
 
     fun getScriptContent(scriptId: Int): ScriptContentDto {
         val ent = findById(scriptId)
@@ -130,4 +132,30 @@ class ScriptService(private val scriptRepository: ScriptRepository,
         setEnabled(scriptId,false)
         eventPublisher.publishEvent(ForceStopEvent(scriptId))
     }
+
+   fun getStore(scriptId: Int) = storeCache.computeIfAbsent(scriptId){ createStore(scriptId) }
+
+   private fun createStore(scriptId: Int) = object : ScriptStore {
+            val fileCache: MutableMap<Int,Map<String,String>> = mutableMapOf()
+            val backoffMap = ConcurrentHashMap<String,Long>()
+
+            override fun load() = fileCache.getOrPut(scriptId){ fs.readSecret(scriptId) }
+            override fun save(map: Map<String, String>){
+                fs.writeSecret(scriptId, map)
+                fileCache[scriptId]=map
+            }
+            override fun remove(vararg keys: String) {
+                fileCache[scriptId] = load()
+                    .filterKeys { it !in keys }
+                    .also{ save(it) }
+            }
+            override fun canProcessAfter(url: String, hours: Int): Boolean {
+                val daysToMillis = hours * 60 * 60 * 1000L
+                val hash = url.sha256()
+                val now = System.currentTimeMillis()
+                backoffMap.entries.removeIf { (_, timestamp) -> now - timestamp >= daysToMillis }
+                val allow = backoffMap.putIfAbsent(hash, now) == null
+                return allow
+            }
+        }
 }
