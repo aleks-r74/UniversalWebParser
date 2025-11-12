@@ -14,6 +14,7 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.walk
@@ -77,15 +78,17 @@ class FileService {
             }
     }
 
-    fun readSecret(scriptId: Int): Map<String, String>{
+    fun readSecret(scriptId: Int): ConcurrentHashMap<String, String>{
         val path = Path.of(basePath,scriptId.toString(),"secret.properties")
         val properties =  Properties()
         try{
             FileReader(path.toFile()).use{ fr-> properties.load(fr)}
         } catch (e: IOException){
-            return mapOf()
+            logger.error(e.stackTraceToString())
+            return ConcurrentHashMap<String,String>()
         }
-        return properties.toMap().mapKeys{ (k,_)->k.toString() }.mapValues { (_,v)->v.toString() }
+        return properties.entries.associate { (k, v) -> k.toString() to v.toString() }
+            .let { ConcurrentHashMap(it) }
     }
 
     private fun writeCreating(file: File, content: String) {

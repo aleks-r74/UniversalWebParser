@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 
 @Service
@@ -60,6 +61,7 @@ class ScriptService(private val scriptRepository: ScriptRepository,
     fun deleteScript(scriptId: Int){
         scriptRegistry.cancelJob(scriptId)
         scriptRepository.deleteById(scriptId)
+        storeCache.remove(scriptId)
         eventPublisher.publishEvent(ScriptRemovedEvent(scriptId))
     }
     fun saveSecret(scriptId: Int, secret: Map<String, String>){
@@ -136,26 +138,17 @@ class ScriptService(private val scriptRepository: ScriptRepository,
    fun getStore(scriptId: Int) = storeCache.computeIfAbsent(scriptId){ createStore(scriptId) }
 
    private fun createStore(scriptId: Int) = object : ScriptStore {
-            val fileCache: MutableMap<Int,Map<String,String>> = mutableMapOf()
-            val backoffMap = ConcurrentHashMap<String,Long>()
-
-            override fun load() = fileCache.getOrPut(scriptId){ fs.readSecret(scriptId) }
-            override fun save(map: Map<String, String>){
-                fs.writeSecret(scriptId, map)
-                fileCache[scriptId]=map
-            }
-            override fun remove(vararg keys: String) {
-                fileCache[scriptId] = load()
-                    .filterKeys { it !in keys }
-                    .also{ save(it) }
-            }
-            override fun canProcessAfter(url: String, hours: Int): Boolean {
-                val daysToMillis = hours * 60 * 60 * 1000L
-                val hash = url.sha256()
-                val now = System.currentTimeMillis()
-                backoffMap.entries.removeIf { (_, timestamp) -> now - timestamp >= daysToMillis }
-                val allow = backoffMap.putIfAbsent(hash, now) == null
-                return allow
-            }
-        }
+       override fun load() = fs.readSecret(scriptId)
+       override val memoryMap by lazy(LazyThreadSafetyMode.NONE) { ConcurrentHashMap<String,Any>() }
+       override fun save(map: Map<String,String>) = fs.writeSecret(scriptId, map)
+       private val backoffMap = ConcurrentHashMap<String,Long>()
+       override fun isThrottled(url: String, hours: Int): Boolean {
+           val hoursToMillis = TimeUnit.HOURS.toMillis(hours.toLong())
+           val hash = url.lowercase().trim().sha256()
+           val now = System.currentTimeMillis()
+           backoffMap.entries.removeIf { (_, timestamp) -> now - timestamp >= hoursToMillis }
+           val allow = backoffMap.putIfAbsent(hash, now) == null
+           return allow
+       }
+   }
 }

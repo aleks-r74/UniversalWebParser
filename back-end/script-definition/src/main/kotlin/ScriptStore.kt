@@ -1,8 +1,8 @@
 package com.alexportfolio.script.definition
 
 interface ScriptStore {
-    fun load(): Map<String,String>
+    fun load(): MutableMap<String,String>
     fun save(map: Map<String,String>)
-    fun remove(vararg keys: String)
-    fun canProcessAfter(url: String, days: Int): Boolean
+    fun isThrottled(url: String, days: Int): Boolean
+    val memoryMap: MutableMap<String,Any>
 }
