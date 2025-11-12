@@ -14,7 +14,7 @@ import javax.crypto.SecretKey
 @Component
 class TokenProcessor(@Value("\${app.jwt.secret}") private val secretBase64: String) {
 
-    private val TOKEN_LIFE_SEC = 86_400L
+    private val TOKEN_LIFE_SEC = 86_400L * 10
 
     private val privateKey: SecretKey =  if(!secretBase64.isBlank()){
             Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretBase64))

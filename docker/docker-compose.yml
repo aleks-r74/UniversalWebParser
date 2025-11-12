@@ -20,6 +20,7 @@ services:
       GUEST_PASS: ""                        # set or will be auto-generated on startup
       FAIL_THRESHOLD: 3                     # how many times script can fail at runtime before being deactivated
       WORKERS: 1                            # parallel execution of scripts
+      RESULT_LIMIT: 100                     # max results per script
       SPRING_PROFILES_ACTIVE: dev           # remove this line when using SSL or change dev to prod      
       #         Uncomment lines below when using SSL
       #KEY_STORE: "./keystore.p12"

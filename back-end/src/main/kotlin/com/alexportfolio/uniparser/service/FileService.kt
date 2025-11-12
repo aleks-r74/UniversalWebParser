@@ -4,6 +4,7 @@ import com.alexportfolio.script.definition.ScriptStore
 import com.alexportfolio.uniparser.events.ResultSavedEvent
 import com.alexportfolio.uniparser.events.ScriptRemovedEvent
 import com.alexportfolio.uniparser.events.ScriptSavedEvent
+import com.alexportfolio.uniparser.extensions.sha256
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.event.TransactionPhase
@@ -15,7 +16,7 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.deleteExisting
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.walk
@@ -78,6 +79,7 @@ class FileService {
                 properties.store(fw, "")
             }
     }
+
     fun readSecret(scriptId: Int): Map<String, String>{
         val path = Path.of(basePath,scriptId.toString(),"secret.properties")
         val properties =  Properties()
@@ -96,7 +98,27 @@ class FileService {
 
     fun getScriptStore(scriptId: Int): ScriptStore =
         object : ScriptStore {
-            override fun load(): Map<String, String> = readSecret(scriptId)
+            val cache: MutableMap<Int,Map<String,String>> = mutableMapOf()
+            val backoffMap = ConcurrentHashMap<String,Long>()
+
+            override fun load() = cache.getOrPut(scriptId){ readSecret(scriptId) }
+            override fun save(map: Map<String, String>){
+                writeSecret(scriptId, map)
+                cache[scriptId]=map
+            }
+            override fun remove(vararg keys: String) {
+                cache[scriptId] = load()
+                    .filterKeys { it !in keys }
+                    .also{ save(it) }
+            }
+            override fun canProcessAfter(url: String, hours: Int): Boolean {
+                val daysToMillis = hours * 60 * 60 * 1000L
+                val hash = url.sha256()
+                val now = System.currentTimeMillis()
+                backoffMap.entries.removeIf { (_, timestamp) -> now - timestamp >= daysToMillis }
+                val allow = backoffMap.putIfAbsent(hash, now) == null
+                return allow
+            }
         }
 
     fun markResultsForRemoval(map: Map<Int,List<Int>>): List<Int>{

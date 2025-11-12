@@ -27,6 +27,7 @@ ENV PLAYWRIGHT_WS= \
     ADMIN_PASS= \
     GUEST_PASS= \
     FAIL_THRESHOLD=3 \
+    RESULT_LIMIT=100 \
     WORKERS= \
     PORT= \
     KEY_STORE= \

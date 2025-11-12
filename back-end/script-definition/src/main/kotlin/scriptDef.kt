@@ -10,7 +10,7 @@ import kotlin.script.experimental.jvm.jvm
     fileExtension = "kts",
     compilationConfiguration = CompilationConfiguration::class
 )
-abstract class WebParser(val store: ScriptStore, val page: Page, val print: (Any)->Unit)
+abstract class WebParser(val store: ScriptStore, val page: Page, val println: (Any)->Unit)
 
 object CompilationConfiguration : ScriptCompilationConfiguration(
     {
