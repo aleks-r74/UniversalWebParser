@@ -4,8 +4,7 @@ import com.alexportfolio.uniparser.model.enums.ExecutionStatus
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.time.Instant
 
 @Table("results")
 data class ResultEnt(
@@ -14,7 +13,7 @@ data class ResultEnt(
     val scriptId: Int,
     @Column("status")
     val status: ExecutionStatus,
-    val timestamp: String = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+    val timestamp: String = Instant.now().toString(),
     val resultHash: String? = null,
     val delivered: Int = 0
     )
