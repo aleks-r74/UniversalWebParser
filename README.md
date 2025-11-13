@@ -19,17 +19,19 @@ A standout feature of the user interface is its **real-time updates**:
 
 ## Script API
 Each script is identified by a unique ID and has access to the following API:
-- `println(Any)` – outputs any object to the web console.
-- `page` – a ready-to-use Playwright Page instance.
-- `store` – provides access to state. Scripts can use it as an internal store for sensitive information or as lightweight text storage. The store provides the following methods:
-  - `load(): Map<String, String>`
-  - `save(map: Map<String, String>)`
-  - `remove(vararg keys: String)`
-  - `canProcessAfter(url: String, hours: Int): Boolean` – Returns `true` the first time a URL is processed, then `false` until the specified number of hours has passed. Useful for throttling parsing. Internal storage for this method is not persisted.
 
-The store can also be modified via REST endpoints by the admin.
+- **`println(Any)`** – Outputs any object to the web console.  
+- **`page`** – A ready-to-use Playwright `Page` instance.  
+- **`store`** – Provides access to state:
+  - **`fun load(): MutableMap<String, String>`** – Reads the map from disk.
+  - **`fun save(map: Map<String, String>)`** – Saves the map to disk.
+  - **`val memoryMap: MutableMap<String, Any>`** – A singleton in-memory map.
+  - **`fun isThrottled(url: String, days: Int): Boolean`** – Returns `true` on the first invocation for a URL, then `false` until the specified time has passed. Useful for throttling parsing.
 
-Any value returned from the script is automatically converted to a JSON object; no manual conversion is needed.
+`memoryMap` and `isThrottled` are backed by `ConcurrentHashMap`s and can retain values between script runs, but are **not persistent**. The disk map can also be modified via REST endpoints by an admin.
+
+Any value returned from the script is automatically converted to JSON; no manual conversion is needed.
+
 
 ## Users
 The project was built for personal use, and no user registration is available. However, it defines two built-in users:

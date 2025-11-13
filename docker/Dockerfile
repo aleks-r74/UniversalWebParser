@@ -22,18 +22,5 @@ WORKDIR /app
 # Copy the JAR from builder
 COPY --from=builder /workspace/UniversalWebParser/back-end/build/libs/uniparser.jar ./uniparser.jar
 
-# Environment variables
-ENV PLAYWRIGHT_WS= \
-    ADMIN_PASS= \
-    GUEST_PASS= \
-    FAIL_THRESHOLD=3 \
-    RESULT_LIMIT=100 \
-    WORKERS= \
-    PORT= \
-    KEY_STORE= \
-    KEY_STORE_PSW= \
-    KEY_STORE_ALIAS= \
-    JWT_SECRET=
-
 # Run the app
 ENTRYPOINT ["java", "-jar", "uniparser.jar"]
