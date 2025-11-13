@@ -17,7 +17,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Service
 class ResultService(private val resultRepository: ResultRepository,
@@ -68,7 +68,7 @@ class ResultService(private val resultRepository: ResultRepository,
         var oldRecord = resultRepository.findByScriptIdAndResultHash(result.scriptId,result.resultHash)
         if(oldRecord!=null){
             logger.info("Result for script ${result.scriptId} is not unique, only timestamp updated")
-            result = oldRecord.copy(timestamp = LocalDateTime.now().toString())
+            result = oldRecord.copy(timestamp = Instant.now().toString())
         }
         val saved = resultRepository.save(result)
         if(oldRecord == null)
