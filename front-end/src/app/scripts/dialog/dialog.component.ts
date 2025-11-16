@@ -4,7 +4,6 @@ import { ScriptContent } from '../models/scriptContent';
 import { BehaviorSubject, catchError, defer, distinctUntilChanged, EMPTY, filter, finalize, iif, map, Observable, of, shareReplay, startWith, Subject, Subscription, switchMap, takeUntil, tap, timeout, timeoutWith } from 'rxjs';
 import { StatestoreService } from '../../statestore.service';
 import { httpStatusToString, RestService } from '../../rest.service';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { DialogContent } from '../models/dialog';
 import { isLog, Log } from '../models/networkMessage';
 import { DatePipe } from '@angular/common';

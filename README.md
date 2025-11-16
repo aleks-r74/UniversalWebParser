@@ -26,7 +26,7 @@ Each script is identified by a unique ID and has access to the following API:
   - **`fun load(): MutableMap<String, String>`** – Reads the map from disk.
   - **`fun save(map: Map<String, String>)`** – Saves the map to disk.
   - **`val memoryMap: MutableMap<String, Any>`** – A singleton in-memory map.
-  - **`fun isThrottled(url: String, days: Int): Boolean`** – Returns `true` on the first invocation for a URL, then `false` until the specified time has passed. Useful for throttling parsing.
+  - **`fun isThrottled(url: String, hours: Int): Boolean`** – Returns `true` on the first invocation for a URL, then `false` until the specified time has passed. Useful for throttling parsing.
 
 `memoryMap` and `isThrottled` are backed by `ConcurrentHashMap`s and can retain values between script runs, but are **not persistent**. The disk map can also be modified via REST endpoints by an admin.
 
@@ -41,5 +41,5 @@ The project was built for personal use, and no user registration is available. H
 Passwords for both users should be configured via environment variables on deployment.
 
 ## More
-For more information check <a href="Readme.pdf" target="_blank">Readme.pdf</a>  
-Live <a href="https://youtube.com" target="_blank">demonstration</a>
+For a brief presentation check <a href="Presentation.pdf" target="_blank">Readme.pdf</a>  
+For techinical information check <a href="Readme.pdf" target="_blank">Readme.pdf</a>  

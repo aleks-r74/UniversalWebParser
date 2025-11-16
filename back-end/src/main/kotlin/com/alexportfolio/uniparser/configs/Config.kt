@@ -9,6 +9,9 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -31,5 +34,18 @@ class Config {
 
     @Bean
     fun playwright(): Playwright = Playwright.create()
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val config = CorsConfiguration().apply {
+            allowedOrigins = listOf("*")
+            allowedMethods = listOf("GET","POST","PUT","PATCH","DELETE","OPTIONS")
+            allowedHeaders = listOf("*")
+            maxAge = 3600
+        }
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", config)
+        return source
+    }
 
 }

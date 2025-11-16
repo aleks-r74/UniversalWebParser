@@ -22,7 +22,7 @@
             <pre [attr.data-prefix]="'$'"><code>{{ line }}</code></pre>
             }
             @for (line of logContent; track line.time; let i = $index) {
-            <pre [attr.data-prefix]="line.time.substring(11, 19)"><code class="ml-4">{{ line.payload }}</code></pre>
+            <pre [attr.data-prefix]="line.time | date:'HH:mm:ss'"><code class="ml-4">{{ line.payload }}</code></pre>
             }
         </div>
     </div>
