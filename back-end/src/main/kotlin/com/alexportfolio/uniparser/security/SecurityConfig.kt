@@ -63,8 +63,7 @@ class SecurityConfig @Autowired constructor(@Value("\${users.admin.password}") p
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(
-                        "/", "/index.html", "/favicon.ico",
-                        "/*.js", "/*.css").permitAll()
+                        "/", "/index.html", "/*.*").permitAll()
                     .requestMatchers("/auth/**").permitAll()
                     .anyRequest().authenticated()
             }
