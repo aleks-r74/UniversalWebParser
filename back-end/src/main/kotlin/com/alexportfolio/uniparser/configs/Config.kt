@@ -35,17 +35,4 @@ class Config {
     @Bean
     fun playwright(): Playwright = Playwright.create()
 
-    @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource {
-        val config = CorsConfiguration().apply {
-            allowedOrigins = listOf("*")
-            allowedMethods = listOf("GET","POST","PUT","PATCH","DELETE","OPTIONS")
-            allowedHeaders = listOf("*")
-            maxAge = 3600
-        }
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", config)
-        return source
-    }
-
 }

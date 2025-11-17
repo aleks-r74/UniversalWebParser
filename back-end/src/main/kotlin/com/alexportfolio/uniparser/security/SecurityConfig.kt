@@ -16,13 +16,14 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.provisioning.UserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import java.util.*
 
 @Configuration
 @EnableMethodSecurity
-class SecurityConfig @Autowired constructor(private val corsConfigurationSource: CorsConfigurationSource? = null,
-                                            @Value("\${users.admin.password}") private val admPass: String,
+class SecurityConfig @Autowired constructor(@Value("\${users.admin.password}") private val admPass: String,
                                             @Value("\${users.guest.password}") private val gstPass: String) {
     @Bean
     fun userManager(encoder: PasswordEncoder): UserDetailsManager {
@@ -55,7 +56,7 @@ class SecurityConfig @Autowired constructor(private val corsConfigurationSource:
     fun securityFilterChain(http: HttpSecurity, jwtAuthFilter: JWTAuthFilter): SecurityFilterChain {
         http
             .cors {cors->
-                corsConfigurationSource?.let{cors.configurationSource(it)}
+                cors.configurationSource(corsConfigurationSource())
             }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
@@ -70,4 +71,17 @@ class SecurityConfig @Autowired constructor(private val corsConfigurationSource:
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
+
+    private fun corsConfigurationSource(): CorsConfigurationSource {
+        val config = CorsConfiguration().apply {
+            allowedOrigins = listOf("*")
+            allowedMethods = listOf("GET","POST","PUT","PATCH","DELETE","OPTIONS")
+            allowedHeaders = listOf("*")
+            maxAge = 3600
+        }
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", config)
+        return source
+    }
+
 }
