@@ -41,5 +41,5 @@ The project was built for personal use, and no user registration is available. H
 Passwords for both users should be configured via environment variables on deployment.
 
 ## More
-For a brief presentation check <a href="Presentation.pdf" target="_blank">Readme.pdf</a>  
+For a brief presentation check <a href="Presentation.pdf" target="_blank">Presentation.pdf</a>  
 For techinical information check <a href="Readme.pdf" target="_blank">Readme.pdf</a>  
