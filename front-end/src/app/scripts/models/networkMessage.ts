@@ -7,6 +7,7 @@ export interface NetworkMessage{
 };
 export interface Log extends NetworkMessage {
     type: "LOG", 
+    id: number,
     payload: string,
     time: string
 }

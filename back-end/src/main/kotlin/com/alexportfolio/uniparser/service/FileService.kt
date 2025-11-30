@@ -120,4 +120,10 @@ class FileService {
                 path.deleteIfExists()
         }
     }
+
+    fun saveBroswerState(scriptId:Int, state: String){
+        val file = File("${basePath}/$scriptId/state.json")
+        if(!file.parentFile.exists()) throw IllegalArgumentException("Script $scriptId doesn't exist")
+        file.writeText(state)
+    }
 }

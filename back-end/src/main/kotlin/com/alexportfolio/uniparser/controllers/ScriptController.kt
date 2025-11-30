@@ -65,4 +65,9 @@ class ScriptController(val scriptService: ScriptService,
     fun getSecret(@PathVariable id: Int): Map<String,String>{
         return scriptService.getSecret(id)
     }
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/browserstate")
+    fun saveState(@PathVariable id: Int, @RequestBody browserstate: String){
+        fs.saveBroswerState(id,browserstate)
+    }
 }

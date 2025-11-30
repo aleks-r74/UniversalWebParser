@@ -12,5 +12,8 @@ class ExceptionHandling {
     fun handleIOException(e: IOException): ResponseEntity<String> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
     }
-
+    @ExceptionHandler
+    fun handleRuntimeException(e: RuntimeException): ResponseEntity<String> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
+    }
 }

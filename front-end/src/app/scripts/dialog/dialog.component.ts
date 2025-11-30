@@ -124,6 +124,7 @@ export class DialogComponent implements AfterViewInit {
       this.textContent.push(...c.split('\n'))
     } else if(isLog(c)){
       this.logContent.push(c)
+      this.logContent.sort((a,b)=>a.id-b.id)
       if(this.autoScroll) this.scrollToBottom();
     } else {
       this.form.get('name')?.setValue(c.name)
